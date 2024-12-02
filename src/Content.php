@@ -192,8 +192,8 @@ function createRulesContent($editID = NULL){
 	$rulesContent['jobToken'] = substr(hash('sha256', CONFIG::PASSWORD."ebe8d532"),0,24);
 	$rulesContent['editRule'] = new Rule();
 
-	if (file_exists('data/rules.log')){
-		$log = file_get_contents('data/rules.log');
+	if (file_exists($GLOBALS["data-dir"].'/rules.log')){
+		$log = file_get_contents($GLOBALS["data-dir"].'/rules.log');
 	}else{
 		$log = "No logs available";
 	}

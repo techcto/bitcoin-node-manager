@@ -94,7 +94,7 @@ class Rule {
 		}
 		$rules[$this->id] = $this;
 		
-		file_put_contents('data/rules.inc',serialize($rules)); 
+		file_put_contents($GLOBALS["data-dir"].'/rules.inc',serialize($rules)); 
 		return true;
 	}
 
@@ -194,13 +194,13 @@ class Rule {
 			}
 		}
 
-		if (file_exists('data/rules.log')){
-			$logging .= file_get_contents('data/rules.log');
+		if (file_exists($GLOBALS["data-dir"].'/rules.log')){
+			$logging .= file_get_contents($GLOBALS["data-dir"].'/rules.log');
 		}
 		if(!empty($logging)){
-			file_put_contents('data/rules.log', $logging);
+			file_put_contents($GLOBALS["data-dir"].'/rules.log', $logging);
 		}
-		file_put_contents('data/rules.inc',serialize($data['rules']));
+		file_put_contents($GLOBALS["data-dir"].'/rules.inc',serialize($data['rules']));
 	}
 	
 	// Get information needed for rule run
@@ -220,7 +220,7 @@ class Rule {
 		$rules = self::getRules(); 
 		if(array_key_exists($id, $rules)) {
 			unset($rules[$id]);
-			file_put_contents('data/rules.inc', serialize($rules)); 
+			file_put_contents($GLOBALS["data-dir"].'/rules.inc', serialize($rules)); 
 			$result = true;
 		}else{
 			$result = false;
@@ -230,7 +230,7 @@ class Rule {
 
 	// Delete a single rule/all
 	public static function deleteAll() { 
-		return unlink('data/rules.inc');
+		return unlink($GLOBALS["data-dir"].'/rules.inc');
 	}
 
 	// Return a single rule
@@ -245,8 +245,8 @@ class Rule {
 
 	// Return all rules
 	public static function getRules() {
-		if (file_exists('data/rules.inc')){
-			$rules = unserialize(file_get_contents('data/rules.inc')); 
+		if (file_exists($GLOBALS["data-dir"].'/rules.inc')){
+			$rules = unserialize(file_get_contents($GLOBALS["data-dir"].'/rules.inc')); 
 		}else{
 			$rules = array();
 		}	   
@@ -259,13 +259,13 @@ class Rule {
 		foreach($rules as &$rule){
 			$rule->uses = 0;
 		}
-		file_put_contents('data/rules.inc',serialize($rules));
+		file_put_contents($GLOBALS["data-dir"].'/rules.inc',serialize($rules));
 		return true;
 	}
 
 	// Delete Logfile
 	public static function deleteLogfile(){
-		return unlink('data/rules.log');
+		return unlink($GLOBALS["data-dir"].'/rules.log');
 	}
 }
 ?>

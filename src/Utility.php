@@ -187,7 +187,7 @@ function getSegWitTx($txs){
 }
 
 function checkHosted($hoster){
-	$hosterList = json_decode(file_get_contents('data/hoster.json'), true);
+	$hosterList = json_decode(file_get_contents($GLOBALS["data-dir"].'/hoster.json'), true);
 	if (in_array($hoster, $hosterList) OR preg_match("/server/i",$hoster)){
 		return true;
 	}else{
@@ -196,14 +196,14 @@ function checkHosted($hoster){
 }
 
 function updateHosted($hoster, $hosted){
-	$peers = file_get_contents('data/geodatapeers.inc');
+	$peers = file_get_contents($GLOBALS["data-dir"].'/geodatapeers.inc');
 	$peers = unserialize($peers);
 	foreach($peers as &$peer){
 		if ($peer[3] == $hoster){
 			$peer[4] = $hosted;
 		}
 	}
-	file_put_contents('data/geodatapeers.inc',serialize($peers));
+	file_put_contents($GLOBALS["data-dir"].'/geodatapeers.inc',serialize($peers));
 }
 
 function bytesToMb($size, int $round = 1){
@@ -484,9 +484,9 @@ function createPeersGeo($peerinfo){
 	$noGeoData = false;
 
   // Check if peer file exists and enabled
-  if (file_exists('data/geodatapeers.inc')){
+  if (file_exists($GLOBALS["data-dir"].'/geodatapeers.inc')){
     // Loads serialized stored peers from disk
-    $serializedPeers = file_get_contents('data/geodatapeers.inc');
+    $serializedPeers = file_get_contents($GLOBALS["data-dir"].'/geodatapeers.inc');
     $arrayPeers = unserialize($serializedPeers);
     // Check if client was restarted and IDs reassigned
     $oldestPeerId = reset($peerinfo)["id"];
@@ -619,7 +619,7 @@ function createPeersGeo($peerinfo){
     }
 
     $newSerializePeers = serialize($arrayPeers);
-    file_put_contents('data/geodatapeers.inc', $newSerializePeers);
+    file_put_contents($GLOBALS["data-dir"].'/geodatapeers.inc', $newSerializePeers);
   }
 
 	return $peerData;
@@ -713,7 +713,7 @@ function createMapJs(int $peerCount, array $countryList){
 	$jqvData .= '};';
 
 	// Writes data file for JVQMap
-	//file_put_contents('data/countries.js',$jqvData);
+	//file_put_contents($GLOBALS["data-dir"].'/countries.js',$jqvData);
 	$map['data'] = $jqvData;
 	$map['desc'] = $mapDesc;
 

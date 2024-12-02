@@ -1,9 +1,17 @@
-version: "3.7"
 services:
   web:
     image: php:8.2-apache
+    environment:
+      - RPC_USER=solodev
+      - RPC_PASSWORD=password
+      - RPC_PORT=9332
+      - RPC_IP=54.211.144.173
+      - CHAIN_SYMBOL=LTC
     ports:
       - 8000:80
     volumes:
-      - ./:/var/www/html
+      - ./data:/var/www/data
+      - ./views:/var/www/views
+      - ./src:/var/www/src
+      - ./public:/var/www/html
     network_mode: bridge

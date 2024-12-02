@@ -1,5 +1,3 @@
 Thumbs.db
-/src/Config.php
-/data/geodatapeers.inc
-/data/rules.inc
-/data/rules.log
+
+vendor/*

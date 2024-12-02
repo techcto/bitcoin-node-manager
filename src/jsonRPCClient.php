@@ -35,7 +35,7 @@ class jsonRPCClient
      * @param string $host
      * @param int $port
      */
-    public function __construct($username, $password, $host = 'localhost', $port = 8332)
+    public function __construct($username, $password, $host = 'localhost', $port = 9332)
     {
         $this->username      = $username;
         $this->password      = $password;
@@ -78,7 +78,7 @@ class jsonRPCClient
         ));
 
         // Build the cURL session
-        $curl    = curl_init("{$this->proto}://{$this->host}:{$this->port}");
+        $curl    = \curl_init("{$this->proto}://{$this->host}:{$this->port}");
         $options = array(
             CURLOPT_HTTPAUTH       => CURLAUTH_BASIC,
             CURLOPT_USERPWD        => $this->username . ':' . $this->password,
@@ -127,6 +127,8 @@ class jsonRPCClient
 
         // If there was no error, this will be an empty string
         $curl_error = curl_error($curl);
+        
+        // var_dump($this->response['result']);
 
         curl_close($curl);
         if(false){
@@ -156,7 +158,7 @@ class jsonRPCClient
         }
 
         if ($this->error) {
-          throw new \Exception($this->error, $this->errorCode);
+          throw new \Exception($this->error);
         }
 
         return $this->response['result'];
