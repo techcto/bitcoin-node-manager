@@ -187,7 +187,7 @@ function getSegWitTx($txs){
 }
 
 function checkHosted($hoster){
-	$hosterList = json_decode(file_get_contents($GLOBALS["data-dir"].'/hoster.json'), true);
+	$hosterList = json_decode(file_get_contents(dirname(__FILE__).'/hoster.json'), true);
 	if (in_array($hoster, $hosterList) OR preg_match("/server/i",$hoster)){
 		return true;
 	}else{

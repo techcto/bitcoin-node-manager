@@ -1,6 +1,8 @@
 services:
-  web:
-    image: php:8.2-apache
+  php:
+    build:
+      context: .
+      dockerfile: ./devops/docker/Dockerfile
     environment:
       - RPC_USER=solodev
       - RPC_PASSWORD=password
@@ -8,10 +10,27 @@ services:
       - RPC_IP=54.211.144.173
       - CHAIN_SYMBOL=LTC
     ports:
-      - 8000:80
+      - 9000
     volumes:
       - ./data:/var/www/data
       - ./views:/var/www/views
       - ./src:/var/www/src
       - ./public:/var/www/html
-    network_mode: bridge
+
+  proxy: 
+    build:
+      context: .
+      dockerfile: ./devops/docker/Dockerfile.ui
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_URL: php:9000
+    ports:
+      - '${HTTP_PORT}:80'
+      - '${HTTPS_PORT}:443'
+    volumes:
+      - ./public:/var/www/html
+    links:
+      - php
+    depends_on:
+      - php
+    restart: always

@@ -1,0 +1,16 @@
+FROM 'techcto/httpd' AS dev
+
+ENV APP_URL ${APP_URL}
+
+#Install App
+COPY public/* /var/www/html/*
+
+WORKDIR /var/www/html
+
+RUN echo "Include conf/extra/node.conf" >> /usr/local/apache2/conf/httpd.conf && mkdir -p /var/log/apache2 && adduser daemon www-data
+COPY devops/docker/ui.conf /usr/local/apache2/conf/extra/node.conf
+
+#Entrypoint
+COPY devops/docker/ui-entrypoint.sh /docker-entrypoint.sh
+RUN chmod a+rx /docker-entrypoint.sh
+ENTRYPOINT ["sh", "/docker-entrypoint.sh"]
