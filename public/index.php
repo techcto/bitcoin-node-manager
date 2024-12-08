@@ -43,7 +43,7 @@ function parseEnvFile($filePath)
 
 	return $envArray;
 }
-$envFilePath = '../litecoin.env'; // Replace with the actual path to your .env file
+$envFilePath = '../node.env'; // Replace with the actual path to your .env file
 $envVars = parseEnvFile($envFilePath);
 
 $GLOBALS["data-dir"] = "../data";

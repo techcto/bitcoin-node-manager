@@ -52,7 +52,7 @@ fi
 rm -rf $APP_DIR/var/cache/*
 
 
-CONFIG="/var/www/litecoin.env"
+CONFIG="/var/www/node.env"
 if [ ! -f $CONFIG ] ; then
     echo "Adding env variables"
     echo "RPC_USER=${RPC_USER}" > $CONFIG
