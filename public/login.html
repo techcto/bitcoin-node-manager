@@ -1,16 +1,62 @@
-<!DOCTYPE html>
-  <head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src data: 'self'">
-    <title>Login</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="noindex, nofollow">
+
+    <title> Sign in to Litecoin Pro
+    </title>
     <link rel="stylesheet" type="text/css" href="assets/css/style.login.css" />
-    <link href="assets/images/favicon.png" rel="shortcut icon" type="image/png">
-  </head>
-  <body>
-    <form id="slick-login" action="index.php" method="POST">
-      <input type="password" name="password" class="placeholder" placeholder="Password" autofocus>
-      <input type="checkbox" name="stayloggedin" id="stayloggedin" checked> <span class="white-text">Stay logged in</span>
-      <input type="submit" value="Log In">
-    </form>
-  </body>
+</head>
+
+<body>
+    <div class="login-content">
+        <div class="box">
+            <div class="logo">
+                <img class="img-fluid w-25" src="assets/images/coin.png" alt="Litecoin">
+                <p class="application-name"> Sign in to Litecoin Pro
+                </p>
+            </div>
+
+
+            <div class="box-container">
+                <form id="kc-form-login" class="form" onsubmit="return true;" action="index.php" method="post">
+
+                    <!-- <div class="form-group">
+                        <div>
+                            <label for="username" class="pf-c-form__label pf-c-form__label-text">Username or email</label>
+                        </div>
+                        <div>
+                            <input tabindex="2" id="username" class="pf-c-form-control" name="username" value="" type="text" autofocus autocomplete="username"
+                                aria-invalid=""
+                                dir="ltr" />
+                        </div>
+                    </div> -->
+
+                    <label for="password" class="pf-c-form__label pf-c-form__label-text">Password</label>
+                    <div class="pf-c-input-group">
+                        <input type="password" id="password" class="pf-c-form-control" name="password" autocomplete="new-password" aria-invalid="" tabindex="2">
+                        <!-- <button class="pf-c-button pf-m-control" type="button" aria-label="Show password" aria-controls="password" data-password-toggle="" data-icon-show="fa fa-eye" data-icon-hide="fa fa-eye-slash" data-label-show="Show password" data-label-hide="Hide password" data-form-type="other">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </button> -->
+                    </div>
+
+                    <div class="formLinks">
+                        <!-- <div class="rememberMe">
+                            <label>
+                                <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox"> Remember me
+                            </label>
+                        </div> -->
+                    </div>
+
+                    <input type="hidden" id="id-hidden-input" name="credentialId" />
+                    <input class="button submit" type="submit" value="Sign in" tabindex="3">
+                </form>
+            <p class="copyright">&copy; 2024 All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
 </html>

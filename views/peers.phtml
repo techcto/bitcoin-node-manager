@@ -113,7 +113,7 @@
 											<li class="divider"></li>
 											<li><a href="?p=peers&c=disconnect&ip=<?=$peer->ipOriginal ?>&t=<?= $_SESSION["csfrToken"] ?>"><i class="fa fa-times" style="color:darkorange"></i> Disconnect</a></li>
 											<?php if($content['geo'] AND !$peer->hosted){ ?> <li class="divider"></li>
-											<li><a href="?p=peers&c=addhoster&n=<?= $peer->isp ?>&t=<?= $_SESSION["csfrToken"] ?>"><i class="fa fa-plus" style="color:green"></i> Add Hoster (ISP)</a></li> <?php } ?>   
+											<li><a href="?p=peers&c=addhoster&n=<?= $peer->isp ?>&t=<?= $_SESSION["csfrToken"] ?>"><i class="fa fa-plus" style="color:green"></i> Add Provider (ISP)</a></li> <?php } ?>   
 										</ul>
 									</div>
 									

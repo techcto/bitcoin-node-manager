@@ -15,8 +15,6 @@
 
 	<title><?= $title ?> - <?= CHAIN_SYMBOL ?> Node Manager</title>
 
-	<link href="assets/images/favicon.png" rel="shortcut icon" type="image/png">
-
 	<!-- Bootstrap -->
 	<link href="assets/css/bootstrap.css" rel="stylesheet">
 	<!-- Font Awesome -->
@@ -39,11 +37,11 @@
 		<div class="main_container">
 			<!-- Mobile Menu -->
 			<div class="mobilenav">
-				<a href="index.php" class="mobilelogo"><i class="fa fa-btc" style="color:orange"></i> Bitcoin Node Manager</a>
+				<a href="index.php" class="mobilelogo"><i class="fa fa-btc" style="color:orange"></i> <?= CHAIN_SYMBOL ?> Node Manager</a>
 				<div id="mobileLinks">
 					<a href="?p=peers"><i class="fa fa-list"></i> Peers </a>
 					<a href="?p=rules"><i class="fa fa-file-text-o"></i> Rules </a>
-					<a href="?p=hoster"><i class="fa fa-database"></i> Hoster </a>
+					<a href="?p=hoster"><i class="fa fa-database"></i> Providers </a>
 					<a href="?p=banlist"><i class="fa fa-ban"></i> Ban List </a>
 					<a href="?p=blocks"><i class="fa fa-cube"></i> Blocks</a>
 					<a href="?p=forks"><i class="fa fa-arrows-h"></i> Forks </a>
@@ -58,7 +56,7 @@
 			<!-- Logo -->
 			<div class="col-md-3 left_col">
 				<div class="left_col scroll-view">
-					<a href="/"><img src="assets/images/litecoin-pro.jpg" border="0" width="100%" /></a>
+					<a href="/"><img src="assets/images/logo.jpg" border="0" width="100%" /></a>
 					<div class="clearfix"></div>
 
 					<!-- sidebar menu -->
@@ -69,7 +67,7 @@
 								<a href="?p=peers" <?php if ($this->section == "peers") echo 'class="active"'; ?>><i class="fa fa-list"></i> Peers </a>
 								<ul class="nav child_menu" style="display: block;">
 									<li <?php if ($this->section == "rules") echo 'class="current-page"'; ?>><a href="?p=rules">Rules</a></li>
-									<li <?php if ($this->section == "hoster") echo 'class="active"'; ?>><a href="?p=hoster">Hoster</a></li>
+									<li <?php if ($this->section == "hoster") echo 'class="active"'; ?>><a href="?p=hoster">Providers</a></li>
 								</ul>
 								<a href="?p=banlist" <?php if ($this->section == "banlist") echo 'class="active"'; ?>><i class="fa fa-ban"></i> Ban List </a>
 								<a href="?p=blocks" <?php if ($this->section == "blocks") echo 'class="active"'; ?>><i class="fa fa-cube"></i> Blocks</a>
