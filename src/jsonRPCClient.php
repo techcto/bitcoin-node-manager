@@ -147,7 +147,7 @@ class jsonRPCClient
                     $this->error = 'Invalid RPC credentials';
                     break;
                 case 0:
-                    $this->error = 'Bitcoin Core not reachable: '.$curl_error;
+                    $this->error = 'Node not reachable at this time.  Please try back later: '.$curl_error;
                     break;
                 case 404:
                     $this->error = 'The RPC call does not exist: '.$method;
