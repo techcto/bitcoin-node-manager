@@ -10,9 +10,6 @@ DATE=$(date +%d%H%M)
 
 bundle(){
     docker-compose -f docker-compose.bundle.yml up --build
-    aws s3 cp dist/node-manager.zip s3://litecoin-pro/node-manager.zip --acl public-read
-    rm -f ../../dist/node-manager.zip
-    cp dist/node-manager.zip ../../dist/node-manager.zip
 }
 
 $*

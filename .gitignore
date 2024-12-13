@@ -1,5 +1,4 @@
 Thumbs.db
-
 data/geodatapeers.inc
-
 vendor/*
+dist/*
