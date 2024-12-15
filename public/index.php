@@ -49,9 +49,9 @@ $envVars = parseEnvFile($envFilePath);
 $GLOBALS["data-dir"] = "../data";
 define('Data_Dir', "../data");
 define('CHAIN_SYMBOL', $envVars["CHAIN_SYMBOL"] ?? 'BTC');
-define('RPC_USER', $envVars["RPC_USER"] ?? 'litecoin');
+define('RPC_USER', $envVars["RPC_USER"] ?? 'bitcoin');
 define('RPC_PASSWORD', $envVars["RPC_PASSWORD"] ?? 'password');
-define('RPC_PORT', $envVars["RPC_PORT"] ?? '9332');
+define('RPC_PORT', $envVars["RPC_PORT"] ?? '9333');
 define('RPC_IP', $envVars["RPC_IP"] ?? '127.0.0.1');
 
 require_once '../src/Autoloader.php';
