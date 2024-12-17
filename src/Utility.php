@@ -23,7 +23,7 @@ function formatServices($servicesArray) {
 	return $services;
 }
 
-function getServices2($hex){
+function getServices($hex){
 	$bit = base_convert($hex, 16, 2);
 	$services = [];
 
@@ -245,7 +245,7 @@ function checkMemPoolLimited($memPoolFee, $relayTxFee){
 
 function checkSoftFork($softForks){
 	foreach($softForks as $name => &$sf){
-		if($sf['type'] === 'bip9' && $sf['bip9']['status'] === "started"){
+		if(isset($sf['type']) && $sf['type'] === 'bip9' && $sf['bip9']['status'] === "started"){
 			if(!preg_match("/[A-Za-z0-9 ]{2,25}/", $name)){
 				unset($softForks[$name]);
 				continue;
