@@ -97,7 +97,6 @@ function createBlocksContent(){
 	$content["totalTx"] = 0;
 	$content["totalFees"] = 0;
 	$content["totalSize"] = 0;
-
 	$blockHash = $bitcoind->getbestblockhash();
 
 	for($i = 0; $i < Config::DISPLAY_BLOCKS; $i++){
@@ -113,9 +112,8 @@ function createBlocksContent(){
 		$content["blocks"][$block["height"]]["timeago"] = round((time() - $block["time"])/60);
 		$content["blocks"][$block["height"]]["coinbasetx"] = $block["tx"][0];
 
-		// var_dump($block["tx"][0], $block["hash"]);
-		$coinbaseTx = $bitcoind->getrawtransaction($block["tx"][0], 1, $block["hash"]);
-		// var_dump($coinbaseTx);die();
+		// $GLOBALS["test"]=1;
+		$coinbaseTx = $bitcoind->getrawtransaction($block["tx"][0], 1);
 
 		$currentReward = 50 / pow(2, floor($block["height"] / 210000));
 		$accuReward = 0;

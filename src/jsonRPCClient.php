@@ -128,7 +128,9 @@ class jsonRPCClient
         // If there was no error, this will be an empty string
         $curl_error = curl_error($curl);
         
-        // var_dump($this->response['result']);
+        if(isset($GLOBALS["test"]) && $GLOBALS["test"]){
+            var_dump($request, $this->response);die();
+        }
 
         curl_close($curl);
         if(false){
