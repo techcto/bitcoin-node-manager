@@ -113,7 +113,8 @@ function createBlocksContent(){
 		$content["blocks"][$block["height"]]["coinbasetx"] = $block["tx"][0];
 
 		// $GLOBALS["test"]=1;
-		$coinbaseTx = $bitcoind->getrawtransaction($block["tx"][0], 1);
+		if (CHAIN_SYMBOL == "DOGE") $coinbaseTx = $bitcoind->getrawtransaction($block["tx"][0], 1);
+		else $coinbaseTx = $bitcoind->getrawtransaction($block["tx"][0], 1, $block["hash"]);
 
 		$currentReward = 50 / pow(2, floor($block["height"] / 210000));
 		$accuReward = 0;
