@@ -4,11 +4,11 @@ services:
       context: .
       dockerfile: ./devops/docker/Dockerfile
     environment:
-      - RPC_USER=solodev
-      - RPC_PASSWORD=password
-      - RPC_PORT=9332
-      - RPC_IP=54.211.144.173
-      - CHAIN_SYMBOL=LTC
+      - RPC_USER=$RPC_USER
+      - RPC_PASSWORD=$RPC_PASSWORD
+      - RPC_PORT=$RPC_PORT
+      - RPC_IP=$RPC_IP
+      - CHAIN_SYMBOL=$CHAIN_SYMBOL
     ports:
       - 9000
     volumes:

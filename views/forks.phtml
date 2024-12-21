@@ -20,7 +20,7 @@
 					<div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
 					  <span class="count_top"><i class="fa fa-code-fork" style="color:lightgreen;"></i> Last Block Main Chain</span>
 					  <div class="count"><?= $content["blocks"][0]['height'] ?></div>
-					  <span class="count_bottom"><span><?= $content["blocks"][0]['timeago'] ?></span> min ago</span>
+					  <span class="count_bottom"><span><?php if(isset($content["blocks"][0]['timeago'])) echo $content["blocks"][0]['timeago']." min ago" ?></span></span>
 					</div>
 				  </div>
 				  </div>
