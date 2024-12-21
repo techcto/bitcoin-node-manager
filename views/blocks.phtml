@@ -76,8 +76,10 @@
 
 
 		  					<tbody>
-		  						<?php $i = 0;
-									foreach ($content['blocks']  as $key => $block) { ?>
+		  						<?php 
+								$i = 0;
+								foreach ($content['blocks']  as $key => $block) { 
+								?>
 		  							<tr>
 		  								<td><?= $key ?></td>
 		  								<td><?php if ($block['asicboost']) { ?><i class="fa fa-tachometer" title="Miner uses overt AsicBoost"></i><?php } else { ?><span style="padding-left:18px;"></span><?php } ?> <?= $block["hash"] ?></td>
@@ -85,12 +87,14 @@
 		  								<td><?= $block["size"] ?></td>
 		  								<td><?= $block["fees"] ?></td>
 		  								<td><?= number_format($block["txcount"]) ?></td>
-		  								<td><?php
+		  								<td>
+											<?php
 												if (!empty($block['voting'])) {
 													foreach ($block['voting'] as $key => $vote) {
 														echo '<button type="button" class="btn btn-default btn-xs">' . $key . '</button>';
 													}
-												} ?>
+												} 
+											?>
 		  								</td>
 		  								<td>
 
@@ -103,16 +107,16 @@
 		  										<ul class="dropdown-menu">
 
 		  											<?php
-														if (CHAIN_SYMBOL == "BTC") {
-														?>
+													if (CHAIN_SYMBOL == "BTC") {
+													?>
 		  												<li><a href="https://www.blockchain.com/btc/block/<?= $block["hash"] ?>" target="_blank"><i class="fa fa-globe fa-lg" style="color:lightblue"></i> Blockchain.com</a></li>
 		  												<li><a href="https://live.blockcypher.com/btc/block/<?= $block["hash"] ?>" target="_blank"><i class="fa fa-globe fa-lg" style="color:lightblue"></i> BlockCypher</a></li>
 		  												<li><a href="https://blockchair.com/bitcoin/block/<?= $block["hash"] ?>" target="_blank"><i class="fa fa-globe fa-lg" style="color:lightblue"></i> Blockchair</a></li>
-		  											<? } else if (CHAIN_SYMBOL == "LTC") { ?>
+		  											<?php } else if (CHAIN_SYMBOL == "LTC") { ?>
 		  												<li><a href="https://litecoinspace.org/block/<?= $block["hash"] ?>" target="_blank"><i class="fa fa-globe fa-lg" style="color:lightblue"></i> Litecoinspace</a></li>
-		  											<? } else if (CHAIN_SYMBOL == "DOGE") { ?>
+		  											<?php } else if (CHAIN_SYMBOL == "DOGE") { ?>
 		  												<li><a href="https://dogechain.info/block/<?= $block["hash"] ?>" target="_blank"><i class="fa fa-globe fa-lg" style="color:lightblue"></i> Dogechain</a></li>
-		  											<? } ?>
+		  											<?php } ?>
 		  										</ul>
 		  									</div>
 		  								</td>
