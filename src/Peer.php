@@ -2,7 +2,8 @@
 
 namespace App;
 
-class Peer{	
+class Peer
+{
   public $id; // int
   public $ip; // string
   public $ipOriginal;
@@ -39,22 +40,23 @@ class Peer{
   public $countryCode; // string
   public $isp; // string
   public $hosted; // bool
-	
-  function __construct($peer) {
+
+  function __construct($peer)
+  {
     $this->id = checkInt($peer["id"]);
     $this->ip = getCleanIP($peer["addr"]);
     $this->ipOriginal = checkIpPort($peer["addr"]);
     $this->ipv6 = checkIfIpv6($this->ip);
-    if(isset($peer["servicesnames"])) {
+    if (isset($peer["servicesnames"])) {
       $this->services = formatServices($peer["servicesnames"]);
     } else {
       $this->services = getServices($peer["services"]);
     }
     $this->servicesOriginal = checkServiceString($peer["services"]);
     $this->relayTx = checkBool($peer["relaytxes"]);
-    if(isset($peer["feefilter"])){
+    if (isset($peer["feefilter"])) {
       $this->feeFilter = checkInt($peer["feefilter"]);
-    }else{
+    } else {
       $this->feeFilter = 0;
     }
     $this->lastSend = checkInt($peer["lastsend"]);
@@ -63,16 +65,16 @@ class Peer{
     $this->trafficOut = bytesToMb($peer["bytessent"]);
     $this->traffic = $this->trafficOut + $this->trafficIn;
     $this->connectTime = getDateTime($peer["conntime"]);
-    $this->age = round((time()-$peer["conntime"])/60);
+    $this->age = round((time() - $peer["conntime"]) / 60);
     $this->timeOffSet = checkInt($peer["timeoffset"]);
-    if(isset($peer["pingtime"])){
-      $this->ping = round(checkInt($peer["pingtime"]),2);
-    }else{
+    if (isset($peer["pingtime"])) {
+      $this->ping = round(checkInt($peer["pingtime"]), 2);
+    } else {
       $this->ping = 0;
     }
-    if(isset($peer["minping"])){
+    if (isset($peer["minping"])) {
       $this->minPing = checkInt($peer["minping"]);
-    }else{
+    } else {
       $this->minPing = 0;
     }
     $this->version = checkInt($peer["version"]);
@@ -86,14 +88,13 @@ class Peer{
     //$this->syncedHeaders = checkInt($peer["synced_headers"]);
     //$this->syncedBlocks = checkInt($peer["synced_blocks"]);
     //$this->inflight = $peer["inflight"];
-    if(isset($peer["whitelisted"])) {
+    if (isset($peer["whitelisted"])) {
       $this->whitelisted = $peer["whitelisted"];
     } else {
       $this->whitelisted = (count($peer["permissions"]) > 0) ? true : false;
     }
 
     $this->bytessentPerMsg = checkArray($peer["bytessent_per_msg"]);
-    $this->bytesrecvPerMsg = checkArray($peer["bytesrecv_per_msg"]);		
-  }			
+    $this->bytesrecvPerMsg = checkArray($peer["bytesrecv_per_msg"]);
+  }
 }
-?>

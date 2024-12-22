@@ -140,6 +140,7 @@ class jsonRPCClient
         }
 
         if($this->status === 500 && $this->response['error']) {
+        //   print("<XMP>");var_dump($options);print("</XMP>");
           $this->error = $this->response['error']['message'];
           $this->errorCode = $this->response['error']['code'];
         }elseif ($this->status !== 200) {
