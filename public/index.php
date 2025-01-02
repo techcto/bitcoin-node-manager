@@ -83,12 +83,29 @@ if ((isset($_GET['job']) && $_GET['job'] === substr(hash('sha256', Config::PASSW
 }
 
 
+function getSsoClaims()
+{
+		$headers = apache_request_headers() ?? [];
+
+		$oidcClaims = [];
+		foreach ($headers as $key => $value) {
+				if (strpos($key, 'OIDC_CLAIM') === 0) {
+						$newKey = substr($key, strlen('OIDC_CLAIM_'));
+						$oidcClaims[$newKey] = $value;
+				}
+		}
+
+		return $oidcClaims;
+}
+
 // Start check user session
 session_start();
 $passToken = hash('sha256', Config::PASSWORD . "ibe81rn6");
 
+$userInfo = getSsoClaims();
+
 // Active Session
-if (isset($_SESSION['login']) && $_SESSION['login'] === TRUE) {
+if ((isset($_SESSION['login']) && $_SESSION['login'] === TRUE) || !empty($userInfo)) {
 	// Nothing needs to be done	
 	// Login Cookie available	
 } elseif (isset($_COOKIE["Login"]) && $_COOKIE["Login"] === $passToken) {
@@ -461,7 +478,13 @@ if (empty($_GET) || $_GET['p'] == "main") {
 	session_destroy();
 	$_SESSION = array();
 	setcookie("Login", "", time() - 3600);
-	header('Location: index.php');
+	if (!empty($userInfo)) {
+		$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+		$logoutUrl = $protocol . '://' . $_SERVER['HTTP_HOST'];
+		header('Location: index.php?logout=' . urlencode($logoutUrl));
+	} else {
+		header('Location: index.php');
+	}
 	exit;
 } else {
 	header('Location: index.php');
