@@ -481,7 +481,7 @@ if (empty($_GET) || $_GET['p'] == "main") {
 	if (!empty($userInfo)) {
 		$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 		$logoutUrl = $protocol . '://' . $_SERVER['HTTP_HOST'];
-		header('Location: index.php?logout=' . urlencode($logoutUrl));
+		header('Location: ssocallback.php?logout=' . urlencode($logoutUrl));
 	} else {
 		header('Location: index.php');
 	}
