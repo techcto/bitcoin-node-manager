@@ -5,7 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta
 		http-equiv="Content-Security-Policy"
-		content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src data: 'self'" />
+		content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src data: *" />
 
 	<!-- Meta, title, CSS, favicons, etc. -->
 	<meta charset="utf-8">
@@ -76,11 +76,28 @@
 								</ul>
 								<a href="?p=wallet" <?php if ($this->section == "wallet") echo 'class="active"'; ?>><i class="fa fa-money"></i> Wallet </a>
 								<a href="?p=settings" <?php if ($this->section == "settings") echo 'class="active"'; ?>><i class="fa fa-cog"></i> Settings </a>
-								<a href="?p=logout"><i class="fa fa-sign-out"></i> Logout </a>
 							</ul>
 						</div>
 					</div>
 					<!-- /sidebar menu -->
+					
+					<!-- User Dropdown -->
+					<div class="dropdown user-dropdown">
+						<button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+							<span class="user-info-container">
+									<?php
+										$userImage = ($userInfo->avatar ?? null) ? $userInfo->avatar : '/assets/images/default-user-avatar.webp';
+									?>
+									<img src="<?= $userImage ?>" alt="User Image" class="img-circle" width="40" height="40">
+									<span class="user-name"><?= htmlspecialchars($userInfo->name ?? $userInfo->email) ?></span>
+							</span>
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a href="?p=logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+						</ul>
+					</div>
+					<!-- User Dropdown -->
 				</div>
 			</div>
 			<!-- page content -->

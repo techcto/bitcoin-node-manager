@@ -4112,3 +4112,57 @@ ul.notifications {
   text-decoration: underline;
   text-decoration-style: dotted;
  }
+
+.user-dropdown {
+  width: 100%;
+  position: absolute;
+  bottom: -5px;
+}
+
+.user-dropdown > button {
+  width: 100%;
+  text-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000;
+  border-radius: 0;
+  color: #fff !important;
+  border-top: 1px solid #2A3F54;
+}
+
+.user-dropdown > button > span.user-info-container {
+  width: 95%;
+  display: flex;
+  align-items: center;
+}
+
+.user-dropdown > button span.user-name {
+  text-overflow: ellipsis;
+  width: 75%;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.user-dropdown > button:hover {
+  color: #fff;
+}
+
+.user-dropdown > button img {
+  margin-right: 1rem;
+}
+
+.user-dropdown > .dropdown-menu {
+  padding: 0;
+  width: 100%;
+  top: -95%;
+  border-radius: 0;
+}
+
+.user-dropdown > .dropdown-menu li a {
+  padding: 15px;
+}
+
+.user-dropdown > .dropdown-menu li a i {
+  margin-right: 1rem;
+}

@@ -14,7 +14,7 @@ header('Referrer-Policy: same-origin');
 header('X-XSS-Protection: 1; mode=block');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src data: 'self'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src *;");
 
 function parseEnvFile($filePath)
 {
@@ -498,6 +498,10 @@ if (isset($error)) {
 if (isset($message)) {
 	$data['message'] = $message;
 }
+
+$data['userInfo'] = !empty($userInfo) ? json_decode(json_encode($userInfo)) : json_decode(json_encode([
+	'name' => 'Admin',
+]));
 
 $tmpl = new Template($data);
 echo $tmpl->render();
