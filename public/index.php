@@ -106,8 +106,10 @@ $userInfo = getSsoClaims();
 
 // Active Session
 if ((isset($_SESSION['login']) && $_SESSION['login'] === TRUE) || !empty($userInfo)) {
-	// Nothing needs to be done	
-	// Login Cookie available	
+	if (!isset($_SESSION['login']) || !isset($_SESSION["csfrToken"])) {
+		$_SESSION['login'] = TRUE;
+		$_SESSION["csfrToken"] = hash('sha256', random_bytes(20));
+	}
 } elseif (isset($_COOKIE["Login"]) && $_COOKIE["Login"] === $passToken) {
 	$_SESSION['login'] = TRUE;
 	$_SESSION["csfrToken"] = hash('sha256', random_bytes(20));
