@@ -33,6 +33,8 @@ Commands:
   upstream-log           Show recent upstream commits not yet in this branch
   upstream-diff          Show file-level diff summary between this branch and upstream/master
   upstream-pull          Fast-forward merge upstream/master into current branch
+  upstream-merge         Merge upstream/master into current branch with a merge commit if needed
+  upstream-rebase        Rebase current branch onto upstream/master
 EOF
 }
 
@@ -48,6 +50,11 @@ upstream-status() {
     git remote -v
     echo
     git branch -vv
+    if has_upstream; then
+        echo
+        echo "ahead/behind vs upstream/master:"
+        git rev-list --left-right --count HEAD...upstream/master
+    fi
 }
 
 upstream-add() {
@@ -82,6 +89,18 @@ upstream-pull() {
     git merge --ff-only upstream/master
 }
 
+upstream-merge() {
+    has_upstream || upstream-add
+    git fetch upstream
+    git merge --no-ff upstream/master
+}
+
+upstream-rebase() {
+    has_upstream || upstream-add
+    git fetch upstream
+    git rebase upstream/master
+}
+
 command_name="${1:-help}"
 shift || true
 
@@ -94,6 +113,8 @@ case "$command_name" in
     upstream-log) upstream-log ;;
     upstream-diff) upstream-diff ;;
     upstream-pull) upstream-pull ;;
+    upstream-merge) upstream-merge ;;
+    upstream-rebase) upstream-rebase ;;
     *)
         echo "Unknown command: $command_name" >&2
         echo

@@ -127,7 +127,7 @@ function checkIfIpv6($ip)
 
 function checkIpPort($ip)
 {
-	if (strpos($ip, ".onion") || preg_match("/^\[{0,1}[0-9a-z:\.]{7,39}\]{0,1}:[0-9]{1,5}$/", $ip)) {
+	if (strpos($ip, ".onion") || strpos($ip, ".i2p") || preg_match("/^\[{0,1}[0-9a-z:\.]{7,39}\]{0,1}:[0-9]{1,5}$/", $ip)) {
 		return $ip;
 	} else {
 		return "Unknown";
@@ -234,6 +234,32 @@ function bytesToGb($size, int $round = 1)
 {
 	$size = round(checkInt($size) / 1000000000, $round);
 	return $size;
+}
+
+function formatDiff($diff, int $round = 1)
+{
+	$units = array('', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb');
+	$i = 0;
+
+	while ($diff >= 1000 && $i < count($units) - 1) {
+		$diff /= 1000;
+		$i++;
+	}
+
+	return number_format($diff, $round) . ' ' . $units[$i];
+}
+
+function formatHash($hashes, int $round = 1)
+{
+	$units = array('H/s', 'KH/s', 'MH/s', 'GH/s', 'TH/s', 'PH/s', 'EH/s', 'ZH/s');
+	$i = 0;
+
+	while ($hashes >= 1000 && $i < count($units) - 1) {
+		$hashes /= 1000;
+		$i++;
+	}
+
+	return number_format($hashes, $round) . ' ' . $units[$i];
 }
 
 function getDateTime($timestamp)

@@ -106,7 +106,10 @@ class Node
 			} elseif (preg_match("/^[0-9a-z]{56}\.onion$/", $ipAddress["address"])) {
 				$this->torVersion = "v3";
 				$this->torAddress = $ipAddress["address"];
-			} elseif (preg_match("/*\.i2p$/", $ipAddress["address"])) {
+			} elseif (
+				preg_match("/^[0-9a-z]{52}\.b32\.i2p$/", $ipAddress["address"]) ||
+				preg_match("/^[a-zA-Z0-9\-]+\.i2p$/", $ipAddress["address"])
+			) {
 				$this->i2pAddress = $ipAddress["address"];
 			}
 		}
@@ -152,8 +155,8 @@ class Node
 		$blockInfo = $bitcoind->getblock($blockchainInfo["bestblockhash"]);
 		$this->bHeightAgo = round((time() - checkInt($blockInfo["time"])) / 60, 1);
 		$this->bcSize = bytesToGb($blockchainInfo["size_on_disk"], 1);
-		$this->diff = checkInt($blockchainInfo["difficulty"]);
-		$this->hashRate = round(checkInt($miningInfo["networkhashps"]) / 1000000000000000000, 3);
+		$this->diff = formatDiff($blockchainInfo["difficulty"], 2);
+		$this->hashRate = formatHash($miningInfo["networkhashps"], 3);
 		$this->mNetTime = getDateTime($blockchainInfo["mediantime"]);
 		// Blockchain -> Soft forks
 		if (isset($blockchainInfo["softforks"])) {
