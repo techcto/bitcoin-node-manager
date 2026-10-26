@@ -84,7 +84,7 @@ class Peer
     $this->monitoring = checkMonitoring($this->client);
     $this->altClient = checkAltClient($this->client);
     $this->inbound = checkBool($peer["inbound"]);
-    $this->startingHeight = checkInt($peer["startingheight"]);
+    $this->startingHeight = isset($peer["startingheight"]) ? checkInt($peer["startingheight"]) : null;
     //$this->syncedHeaders = checkInt($peer["synced_headers"]);
     //$this->syncedBlocks = checkInt($peer["synced_blocks"]);
     //$this->inflight = $peer["inflight"];

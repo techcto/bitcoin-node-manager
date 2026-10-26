@@ -29,6 +29,8 @@ rather than inferred from another chain's reward schedule.
 Read-only UI routes and login were exercised locally against isolated regtest
 nodes: Bitcoin Core 31.1, Litecoin Core 0.21.5.5, and Dogecoin Core 1.14.9. Ten
 pages per chain rendered without PHP warnings or RPC errors with a loaded wallet.
+The dashboard and peer pages were also exercised with real loopback peers on
+each chain, including Bitcoin 31 peers that omit `startingheight`.
 Unauthenticated and spoofed-SSO-header requests were denied. These checks do not
 replace a real post-build AMI launch, HTTPS, or identity-provider callback check.
 No new CI checks or AWS permissions are required by this change.
