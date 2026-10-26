@@ -83,7 +83,7 @@ class jsonRPCClient
             CURLOPT_HTTPAUTH       => CURLAUTH_BASIC,
             CURLOPT_USERPWD        => $this->username . ':' . $this->password,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_MAXREDIRS      => 10,
             CURLOPT_HTTPHEADER     => array('Content-type: application/json'),
             CURLOPT_POST           => true,
@@ -112,7 +112,7 @@ class jsonRPCClient
             } else {
                 // If not we need to assume the SSL cannot be verified
                 // so we set this flag to FALSE to allow the connection
-                $options[CURLOPT_SSL_VERIFYPEER] = false;
+                $options[CURLOPT_SSL_VERIFYPEER] = true;
             }
         }
 
@@ -139,29 +139,21 @@ class jsonRPCClient
           echo $curl_error;
         }
 
-        if($this->status === 500 && $this->response['error']) {
-        //   print("<XMP>");var_dump($options);print("</XMP>");
-          $this->error = $this->response['error']['message'];
-          $this->errorCode = $this->response['error']['code'];
-        }elseif ($this->status !== 200) {
-            // If bitcoind didn't return a nice error message, we need to make our own
-            switch ($this->status) {
-                case 401:
-                    $this->error = 'Invalid RPC credentials';
-                    break;
-                case 0:
-                    $this->error = 'Node not reachable at this time.  Please try back later: '.$curl_error;
-                    break;
-                case 404:
-                    $this->error = 'The RPC call does not exist: '.$method;
-                    break;
-                default:
-                  $this->error = 'Unkown Error '.$this->status.': '.$curl_error;
-            }
+        if (is_array($this->response) && !empty($this->response['error'])) {
+            $this->error = $this->response['error']['message'] ?? 'Node RPC failed';
+            $this->errorCode = (int) ($this->response['error']['code'] ?? 0);
+        } elseif ($this->status !== 200) {
+            $this->error = match ($this->status) {
+                401 => 'Invalid RPC credentials',
+                0 => 'Node is not reachable yet. It may still be starting.',
+                404 => 'The node RPC endpoint was not found.',
+                default => 'Node RPC returned HTTP ' . $this->status,
+            };
+        } elseif (!is_array($this->response) || !array_key_exists('result', $this->response)) {
+            $this->error = 'The node returned an invalid RPC response.';
         }
-
-        if ($this->error) {
-          throw new \Exception($this->error);
+        if ($this->error !== null) {
+            throw new \RuntimeException($this->error, (int) $this->errorCode);
         }
 
         return $this->response['result'];

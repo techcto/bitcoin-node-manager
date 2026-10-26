@@ -36,8 +36,8 @@ function createPeerContent(){
 	$content['cTraffic'] = round($peersData["cTraffic"]/1000,2);
 	$content['cTrafficIn'] = round($peersData["cTrafficIn"]/1000, 2);
 	$content['cTrafficOut'] = round($peersData["cTrafficOut"]/1000, 2);
-	$content['tTraffic'] = round(($netinfo["totalbytesrecv"] + $netinfo["totalbytessent"])/1000000000,2);
-	$content['tTrafficOutP'] = round(($netinfo["totalbytessent"]/($netinfo["totalbytesrecv"] + $netinfo["totalbytessent"])),2)*100;
+	$content['tTraffic'] = round(max(1, $netinfo["totalbytesrecv"] + $netinfo["totalbytessent"])/1000000000,2);
+	$content['tTrafficOutP'] = round(($netinfo["totalbytessent"]/max(1, $netinfo["totalbytesrecv"] + $netinfo["totalbytessent"])),2)*100;
 	$content['cTrafficP'] = round($content['cTraffic']/($content['tTraffic'] > 0 ? $content['tTraffic'] : 1),2)*100;
 	$content['geo'] = Config::PEERS_GEO;
   if(isset($peersData['api'])) $content['api'] = $peersData['api'];
@@ -90,50 +90,54 @@ function createBanListContent(){
 	return $content;
 }
 
-function createBlocksContent(){
-	global $bitcoind;
-
-	$content = [];
-	$content["totalTx"] = 0;
-	$content["totalFees"] = 0;
-	$content["totalSize"] = 0;
-	$blockHash = $bitcoind->getbestblockhash();
-
-	for($i = 0; $i < Config::DISPLAY_BLOCKS; $i++){
-		$block = $bitcoind->getblock($blockHash);
-		$content["blocks"][$block["height"]]["hash"] = $block["hash"];
-		$content["blocks"][$block["height"]]["size"] = round($block["size"]/1000000,2);
-		$content["totalSize"] += $block["size"];
-		$content["blocks"][$block["height"]]["versionhex"] = $block["versionHex"];
-		$content["blocks"][$block["height"]]["voting"] = getVoting($block["versionHex"]);
-		$content["blocks"][$block["height"]]["asicboost"] = checkAsicBoost($block["versionHex"]);
-		$content["blocks"][$block["height"]]["time"] = getDateTime($block["time"]);
-		$content["blocks"][$block["height"]]["mediantime"] = getDateTime($block["mediantime"]);
-		$content["blocks"][$block["height"]]["timeago"] = round((time() - $block["time"])/60);
-		$content["blocks"][$block["height"]]["coinbasetx"] = $block["tx"][0];
-
-		$coinbaseTx = @$bitcoind->getrawtransaction($block["tx"][0], 1, $block["hash"]);
-
-		$currentReward = 50 / pow(2, floor($block["height"] / 210000));
-		$accuReward = 0;
-		foreach($coinbaseTx["vout"] as $vout){
-			$accuReward += $vout["value"];
-		}
-		$content["blocks"][$block["height"]]["fees"] = round($accuReward - $currentReward, 4);
-		$content["totalFees"] += $content["blocks"][$block["height"]]["fees"];
-		$content["blocks"][$block["height"]]["txcount"] = count($block["tx"]);
-		$content["totalTx"] += $content["blocks"][$block["height"]]["txcount"];
-		$blockHash = $block["previousblockhash"];
-	}
-	$content["avgTxSize"] = round(($content["totalSize"]/($content["totalTx"]))/1000,2);
-	$content["avgSize"] = round($content["totalSize"]/(Config::DISPLAY_BLOCKS*1000000),2);
-	$content["totalSize"] = round($content["totalSize"]/1000000,2);
-	$content["avgFee"] = round($content["totalFees"]/Config::DISPLAY_BLOCKS,2);
-	$content["totalFees"] = round($content["totalFees"],2);
-	$content["numberOfBlocks"] = Config::DISPLAY_BLOCKS;
-	$content["timeframe"] = round(end($content["blocks"])["timeago"]/60);
-
-	return $content;
+function createBlocksContent() {
+    global $bitcoind;
+    $content = ['blocks' => [], 'totalTx' => 0, 'totalFees' => 0, 'totalSize' => 0];
+    $blockHash = $bitcoind->getbestblockhash();
+    $feesAvailable = true;
+    for ($i = 0; $i < Config::DISPLAY_BLOCKS; $i++) {
+        $block = $bitcoind->getblock($blockHash);
+        $fees = null;
+        if ($block['height'] === 0) {
+            $fees = 0;
+        } elseif ($feesAvailable) {
+            try {
+                $stats = $bitcoind->getblockstats($blockHash, ['totalfee']);
+                $fees = $stats['totalfee'] / 100000000;
+            } catch (\RuntimeException $exception) {
+                $feesAvailable = false;
+            }
+        }
+        $versionHex = $block['versionHex'] ?? sprintf('%08x', $block['version']);
+        $content['blocks'][$block['height']] = [
+            'hash' => $block['hash'],
+            'size' => round($block['size'] / 1000000, 2),
+            'versionhex' => $versionHex,
+            'voting' => getVoting($versionHex),
+            'asicboost' => checkAsicBoost($versionHex),
+            'time' => getDateTime($block['time']),
+            'mediantime' => getDateTime($block['mediantime'] ?? $block['time']),
+            'timeago' => round((time() - $block['time']) / 60),
+            'coinbasetx' => $block['tx'][0],
+            'fees' => $fees === null ? 'Unavailable' : round($fees, 8),
+            'txcount' => count($block['tx']),
+        ];
+        $content['totalSize'] += $block['size'];
+        $content['totalTx'] += count($block['tx']);
+        $content['totalFees'] += $fees ?? 0;
+        if (empty($block['previousblockhash'])) { break; }
+        $blockHash = $block['previousblockhash'];
+    }
+    $count = count($content['blocks']);
+    $content['avgTxSize'] = round($content['totalSize'] / max(1, $content['totalTx']) / 1000, 2);
+    $content['avgSize'] = round($content['totalSize'] / max(1, $count) / 1000000, 2);
+    $content['totalSize'] = round($content['totalSize'] / 1000000, 2);
+    $content['avgFee'] = $feesAvailable ? round($content['totalFees'] / max(1, $count), 8) : 'Unavailable';
+    $content['totalFees'] = $feesAvailable ? round($content['totalFees'], 8) : 'Unavailable';
+    $content['numberOfBlocks'] = $count;
+    $last = end($content['blocks']);
+    $content['timeframe'] = round(($last['timeago'] ?? 0) / 60);
+    return $content;
 }
 
 function createForksContent(){
@@ -166,6 +170,7 @@ function createForksContent(){
 			$content["blocks"][$i]["time"] = getDateTime($block["time"]);
 			$lastTime = $block["time"];
 			$content["blocks"][$i]["mediantime"] = getDateTime($block["mediantime"]);
+			$content["blocks"][$i]["time"] = $block["time"];
 			$content["blocks"][$i]["timeago"] = round((time() - $block["time"])/ (($i === 0) ? 60 : 86400));
 			$content["blocks"][$i]["txcount"] = count($block["tx"]);
 
@@ -226,12 +231,22 @@ function createWalletContent(){
 	try{
 		$unspents = $bitcoind->listunspent();
 		$walletInfo = $bitcoind->getwalletinfo();
-		$balances = $bitcoind->getbalances();
+		try {
+            $balances = $bitcoind->getbalances();
+        } catch (\RuntimeException $exception) {
+            if ($exception->getCode() !== -32601) { throw $exception; }
+            // Older Dogecoin nodes report wallet balances in getwalletinfo.
+            $balances = ['mine' => [
+                'trusted' => $walletInfo['balance'] ?? 0,
+                'untrusted_pending' => $walletInfo['unconfirmed_balance'] ?? 0,
+                'immature' => $walletInfo['immature_balance'] ?? 0,
+            ]];
+        }
 	}catch(\Exception $e){
 		if ($e->getCode() == -18) {
-			$error = "Wallet data not found.";
+			$error = "No wallet is loaded on this node. Load or create one through the node wallet API.";
 		} else {
-			$error = "Wallet disabled!";
+			$error = $e->getCode() === -19 ? "Multiple wallets are loaded. Select a wallet in the node API." : "Wallet information is unavailable: " . $e->getMessage();
 		}
 		return "";
 	}
@@ -253,12 +268,12 @@ function createWalletContent(){
 		$content["utxo"][$i]["hash"] = $unspent["txid"];
 		$content["utxo"][$i]["vout"] = $unspent["vout"];
 		$content["utxo"][$i]["address"] = $unspent["address"];
-		$content["utxo"][$i]["label"] = $unspent["label"];
+		$content["utxo"][$i]["label"] = ($unspent["label"] ?? $unspent["account"] ?? '');
 		$content["utxo"][$i]["amount"] = $unspent["amount"];
 		$content["utxo"][$i]["confs"] = $unspent["confirmations"];
 		$content["utxo"][$i]["spendable"] = $unspent["spendable"];
 		$content["utxo"][$i]["solvable"] = $unspent["solvable"];
-		$content["utxo"][$i]["safe"] = $unspent["safe"];
+		$content["utxo"][$i]["safe"] = ($unspent["safe"] ?? false);
 
 		$i++;
 	}

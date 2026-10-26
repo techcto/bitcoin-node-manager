@@ -23,7 +23,7 @@ class Template
 			//Includes contents
 			include '../views/header.phtml';
 			if (!empty($error)) {
-				echo '<div class="alert alert-danger col-md-3 col-sm-6 col-xs-12" role="alert">' . $error . '</div>';
+				echo '<div class="alert alert-danger col-md-3 col-sm-6 col-xs-12" role="alert">' . htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') . '</div>';
 			} else {
 				include $this->sectionPath;
 			}

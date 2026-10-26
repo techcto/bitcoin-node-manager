@@ -490,7 +490,7 @@ function getMostPop($peers)
 
 		// Count ISP 2
 		arsort($htCountAr);
-		$result['mpIsp'] = substr(key($htCountAr), 0, 8);
+		$result['mpIsp'] = substr(key($htCountAr) ?? '', 0, 8);
 		$result['mpIspC'] = reset($htCountAr);
 	}
 
@@ -549,8 +549,8 @@ function createPeersGeo($peerinfo)
 		$serializedPeers = file_get_contents($GLOBALS["data-dir"] . '/geodatapeers.inc');
 		$arrayPeers = unserialize($serializedPeers);
 		// Check if client was restarted and IDs reassigned
-		$oldestPeerId = reset($peerinfo)["id"];
-		$oldestPeerIp = getCleanIP(reset($peerinfo)["addr"]);
+		$oldestPeerId = (reset($peerinfo)["id"] ?? null);
+		$oldestPeerIp = getCleanIP(reset($peerinfo)["addr"] ?? '');
 		$delete = false;
 		// Checks if we know about the oldest peer, if not we assume that we don't known any peer
 		foreach ($arrayPeers as $key => $peer) {

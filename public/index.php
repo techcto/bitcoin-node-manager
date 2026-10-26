@@ -5,8 +5,8 @@ namespace App;
 // Error reporting
 error_reporting(E_ALL);
 ini_set('ignore_repeated_errors', TRUE);
-ini_set('display_startup_errors', TRUE);
-ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', FALSE);
+ini_set('display_errors', FALSE);
 
 // Security
 ini_set('session.cookie_httponly', '1');
@@ -31,6 +31,7 @@ function parseEnvFile($filePath)
 			continue; // Skip comments
 		}
 
+		if (!str_contains($line, '=')) { continue; }
 		list($name, $value) = explode('=', $line, 2);
 		$name = trim($name);
 		$value = trim($value);
@@ -43,11 +44,21 @@ function parseEnvFile($filePath)
 
 	return $envArray;
 }
-$envFilePath = '../node.env'; // Replace with the actual path to your .env file
-$envVars = parseEnvFile($envFilePath);
+$envFilePath = dirname(__DIR__) . '/node.env'; // Replace with the actual path to your .env file
+try {
+	$envVars = parseEnvFile($envFilePath);
+} catch (\Throwable $exception) {
+	error_log('Node manager configuration is unavailable.');
+	http_response_code(503);
+	exit('Node configuration is unavailable. Please complete server setup.');
+}
+if (empty($envVars['RPC_PASSWORD'])) {
+	http_response_code(503);
+	exit('Node credentials are not configured. Please complete server setup.');
+}
 
-$GLOBALS["data-dir"] = "../data";
-define('Data_Dir', "../data");
+$GLOBALS["data-dir"] = dirname(__DIR__) . '/data';
+define('Data_Dir', dirname(__DIR__) . '/data');
 define('CHAIN_SYMBOL', $envVars["CHAIN_SYMBOL"] ?? 'BTC');
 define('RPC_USER', $envVars["RPC_USER"] ?? 'bitcoin');
 define('RPC_PASSWORD', $envVars["RPC_PASSWORD"] ?? 'password');
@@ -76,41 +87,49 @@ if (defined('App\Config::RPC_PORT')) {
 $bitcoind = new jsonRPCClient(Config::RPC_USER, Config::RPC_PASSWORD, $rpcIp, $rpcPort);
 
 // Cronjob Rule Run
-if ((isset($_GET['job']) && $_GET['job'] === substr(hash('sha256', Config::PASSWORD . "ebe8d532"), 0, 24)) || (isset($argc) && $argv[1] === substr(hash('sha256', Config::PASSWORD . "ebe8d532"), 0, 24))) {
-	require_once 'src/Utility.php';
+if ((isset($_GET['job']) && $_GET['job'] === substr(hash('sha256', Config::PASSWORD . "ebe8d532"), 0, 24)) || (PHP_SAPI === 'cli' && isset($argv[1]) && $argv[1] === substr(hash('sha256', Config::PASSWORD . "ebe8d532"), 0, 24))) {
+	require_once dirname(__DIR__) . '/src/Utility.php';
 	Rule::run();
 	exit;
 }
 
 
-function getSsoClaims()
+function getSsoClaims(): array
 {
-		$headers = apache_request_headers() ?? [];
-
-		$oidcClaims = [];
-		foreach ($headers as $key => $value) {
-				if (strpos($key, 'OIDC_CLAIM') === 0) {
-						$newKey = substr($key, strlen('OIDC_CLAIM_'));
-						$oidcClaims[$newKey] = $value;
-				}
-		}
-
-		return $oidcClaims;
+    global $envVars;
+    // Only Apache's authenticated server identity is trusted. HTTP headers are
+    // supplied by callers and cannot establish an SSO login.
+    if (empty($envVars['SSO_CLIENT_ID']) || empty($_SERVER['REMOTE_USER'])) {
+        return [];
+    }
+    return [
+        'email' => $_SERVER['OIDC_CLAIM_email'] ?? $_SERVER['REMOTE_USER'],
+        'name' => $_SERVER['OIDC_CLAIM_name'] ?? $_SERVER['REMOTE_USER'],
+    ];
 }
 
 // Start check user session
+ini_set('session.use_strict_mode', '1');
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? '1' : '0');
 session_start();
 $passToken = hash('sha256', Config::PASSWORD . "ibe81rn6");
 
 $userInfo = getSsoClaims();
+if (!empty($envVars['SSO_CLIENT_ID']) && empty($userInfo)) {
+	http_response_code(403);
+	exit('Sign in through the configured SSO provider.');
+}
 
 // Active Session
 if ((isset($_SESSION['login']) && $_SESSION['login'] === TRUE) || !empty($userInfo)) {
 	if (!isset($_SESSION['login']) || !isset($_SESSION["csfrToken"])) {
+		session_regenerate_id(true);
 		$_SESSION['login'] = TRUE;
 		$_SESSION["csfrToken"] = hash('sha256', random_bytes(20));
 	}
 } elseif (isset($_COOKIE["Login"]) && $_COOKIE["Login"] === $passToken) {
+	session_regenerate_id(true);
 	$_SESSION['login'] = TRUE;
 	$_SESSION["csfrToken"] = hash('sha256', random_bytes(20));
 	// Password disabled
@@ -119,13 +138,14 @@ if ((isset($_SESSION['login']) && $_SESSION['login'] === TRUE) || !empty($userIn
 	// Login		
 } elseif (!isset($_SESSION['login']) && isset($_POST['password']) && $_POST['password'] === Config::PASSWORD) {
 	$passHashed = hash('sha256', Config::PASSWORD);
+	session_regenerate_id(true);
 	$_SESSION['login'] = TRUE;
 	$_SESSION["csfrToken"] = hash('sha256', random_bytes(20));
 	if (isset($_POST['stayloggedin'])) {
 		setcookie("Login", $passToken, [
 			'expires' => time() + 2592000,
-			'path' => '*',
-			'secure' => FALSE,
+			'path' => '/',
+			'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
 			'httponly' => TRUE,
 			'samesite' => 'Strict',
 		]);
@@ -459,10 +479,10 @@ if (empty($_GET) || $_GET['p'] == "main") {
 			}
 
 			// Write new settings in config.php
-			if (file_exists('src/Config.php')) {
-				$conf = file_get_contents('src/Config.php');
+			if (file_exists(dirname(__DIR__) . '/src/Config.php')) {
+				$conf = file_get_contents(dirname(__DIR__) . '/src/Config.php');
 				$conf = preg_replace("/PEERS_GEO = (true|false);/i", 'PEERS_GEO = ' . $geoPeers . ';', $conf);
-				$resultConfig = file_put_contents('src/Config.php', $conf);
+				$resultConfig = file_put_contents(dirname(__DIR__) . '/src/Config.php', $conf);
 				if ($resultConfig) $message = "Setings succesfully saved";
 				else $error = "No permissions to write config file";
 			} else {
@@ -479,7 +499,7 @@ if (empty($_GET) || $_GET['p'] == "main") {
 	session_unset();
 	session_destroy();
 	$_SESSION = array();
-	setcookie("Login", "", time() - 3600);
+	setcookie('Login', '', ['expires' => time() - 3600, 'path' => '/', 'httponly' => true, 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off', 'samesite' => 'Strict']);
 	if (!empty($userInfo)) {
 		$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 		$logoutUrl = $protocol . '://' . $_SERVER['HTTP_HOST'];
